@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pressure Altitude Calculator</title>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500&display=swap');
+    
+    body {
+        font-family: 'Urbanist', sans-serif;
+        color: black;
+    }
+</style>
+
+<!-- MathJax for LaTeX rendering -->
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<script>
+function ft2m(ft) {
+    return ft * 0.3048;
+}
+
+function m2ft(m) {
+    return m / 0.3048;
+}
+
+// Constants
+const _L = 0.0065;
+const _T0 = 288.15;
+const _P0 = 101325;
+const _g = 9.80665;
+const _Rs = 287.058;
+
+function pressure_altitude(elev, qnh) {
+    elev = ft2m(elev);
+    qnh = qnh * 100;
+    let pa = elev + _T0 / _L * (1 - (qnh / _P0) ** (_Rs * _L / _g));
+    return m2ft(pa);
+}
+
+function pressure_altitude_approx(elev, qnh) {
+    qnh = qnh * 0.02953;
+    return (29.92 - qnh) * 1000 + elev;
+}
+
+function calculate() {
+    let elev = parseFloat(document.getElementById('elev').value);
+    let qnh = parseFloat(document.getElementById('qnh').value);
+    let pa = pressure_altitude(elev, qnh);
+    let pa_approx = pressure_altitude_approx(elev, qnh);
+    document.getElementById('result').innerHTML = 
+        'Exact Pressure Altitude: ' + pa.toFixed(2) + ' ft<br>' +
+        'Approximate Pressure Altitude: ' + pa_approx.toFixed(2) + ' ft';
+}
+
+</script>
+</head>
+<body>
+<h2>Pressure Altitude Calculator</h2>
+
+<label for="elev">Elevation (ft):</label><br>
+<input type="number" id="elev" oninput="calculate()"><br>
+
+<label for="qnh">QNH (hPa):</label><br>
+<input type="number" id="qnh" oninput="calculate()"><br>
+
+<h3>Results:</h3>
+<div id="result"></div>
+
+<!-- Info Section with Formulas and Explanations -->
+<h3>Formulas and Constants</h3>
+<p>The exact formula for calculating pressure altitude is:</p>
+<div>\[ \mathrm{PA}=h+\frac{T_0}{L}\cdot\left[1-\left(\frac{\mathrm{QNH}}{P_0}\right)^\frac{R_s\cdot L}{g}\right] \]</div>
+<p>The approximate formula is:</p>
+<div>\[ \mathrm{PA_{feet}} = (29.92 - 0.02953\cdot\mathrm{QNH}) \cdot 1000 + h_{feet} \]</div>
+
+<p><strong>Constants:</strong></p>
+<ul>
+    <li>\( L = 0.0065 \, \text{K/m} \) - Temperature Lapse Rate</li>
+    <li>\( T_0 = 288.15 \, \text{K} \) - Standard Temperature at Sea Level</li>
+    <li>\( P_0 = 101325 \, \text{Pa} \) - Standard Pressure at Sea Level</li>
+    <li>\( g = 9.80665 \, \text{m/s}^2 \) - Gravitational Acceleration</li>
+    <li>\( R_s = 287.058 \, \text{J/(kg·K)} \) - Specific Gas Constant for Dry Air</li>
+</ul>
+
+</body>
+</html>
